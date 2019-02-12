@@ -8,13 +8,10 @@
  * @copyright   Ebizmarts (http://ebizmarts.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-
 namespace Ebizmarts\MailChimp\Helper;
-
 use Magento\Framework\Exception\ValidatorException;
 use Magento\Store\Model\Store;
 use Symfony\Component\Config\Definition\Exception\Exception;
-
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
     const XML_PATH_ACTIVE            = 'mailchimp/general/active';
@@ -44,10 +41,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const XML_INTEREST_SUCCESS_HTML_BEFORE  = 'mailchimp/general/interest_success_html_before';
     const XML_INTEREST_SUCCESS_HTML_AFTER   = 'mailchimp/general/interest_success_html_after';
     const XML_MAGENTO_MAIL           = 'mailchimp/general/magentoemail';
-
-
     const ORDER_STATE_OK             = 'complete';
-
     const GUEST_GROUP                = 'NOT LOGGED IN';
     const IS_CUSTOMER   = "CUS";
     const IS_PRODUCT    = "PRO";
@@ -56,10 +50,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const IS_SUBSCRIBER = "SUB";
     const IS_PROMO_RULE = "PRL";
     const IS_PROMO_CODE = "PCD";
-
     const PLATFORM      = 'Magento2';
     const MAXSTORES     = 200;
-
     const SUB_MOD       = "SubscriberModified";
     const SUB_NEW       = "SubscriberNew";
     const PRO_MOD       = "ProductModified";
@@ -70,7 +62,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const ORD_NEW       = "OrderNew";
     const QUO_MOD       = "QuoteModified";
     const QUO_NEW       = "QuoteNew";
-
     protected $counters = [];
     /**
      * @var \Magento\Store\Model\StoreManagerInterface
@@ -108,7 +99,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      * @var \Mailchimp
      */
     private $_api;
-
     /**
      * @var \Magento\Customer\Model\ResourceModel\Customer\CustomerRepository
      */
@@ -186,11 +176,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      * @var \Magento\Framework\Serialize\Serializer\Json
      */
     protected $_serializer;
-
-
     private $customerAtt    = null;
     private $_mapFields     = null;
-
     /**
      * Data constructor.
      * @param \Magento\Framework\App\Helper\Context $context
@@ -250,7 +237,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Framework\Serialize\Serializer\Json $serializer,
         \Magento\Framework\Stdlib\DateTime\DateTime $date
     ) {
-
         $this->_storeManager  = $storeManager;
         $this->_mlogger       = $logger;
         $this->_groupRegistry = $groupRegistry;
@@ -282,7 +268,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->_date                    = $date;
         parent::__construct($context);
     }
-
     /**
      * @param null $store
      * @return mixed
@@ -291,7 +276,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return $this->getConfigValue(self::XML_PATH_ACTIVE, $store);
     }
-
     /**
      * @param null $store
      * @return mixed
@@ -300,7 +284,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return $this->getConfigValue(self::XML_PATH_CONFIRMATION_FLAG, $store);
     }
-
     /**
      * @param null $store
      * @return mixed
@@ -309,7 +292,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return $this->getConfigValue(self::XML_PATH_APIKEY, $store, $scope);
     }
-
     /**
      * @param null $store
      * @return \Mailchimp
@@ -344,7 +326,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                     $item->getBackendModel()=='Magento\Customer\Model\Customer\Attribute\Backend\Shipping') ? 1:0;
                 $ret[$item->getId()] = ['attCode' => $item->getAttributeCode(), 'isDate' =>$isDate, 'isAddress' => $isAddress, 'options'=>$options] ;
             }
-
             $this->customerAtt = $ret;
         }
         return $this->customerAtt;
@@ -355,7 +336,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $customerAtt = $this->getCustomerAtts();
             $data = $this->getConfigValue(self::XML_MERGEVARS, $storeId);
             try {
-                $data = $this->_serializer->unserialize($data);
+                $data = $this->unserialize($data);
                 if (is_array($data)) {
                     foreach ($data as $customerFieldId => $mailchimpName) {
                         $this->_mapFields[] = [
@@ -387,7 +368,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->_api->setUserAgent('Mailchimp4Magento' . (string)$this->getModuleVersion());
         return $this->_api;
     }
-
     /**
      * @param $path
      * @param null $storeId
@@ -407,7 +387,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $this->_config->deleteConfig($path, $scope, $storeId);
     }
-
     public function saveConfigValue($path, $value, $storeId = null, $scope = null)
     {
         if ($scope) {
@@ -467,7 +446,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return $this->getConfigValue(self::XML_PATH_LIST, $store);
     }
-
     /**
      * @return \Psr\Log\LoggerInterface
      */
@@ -475,7 +453,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return $this->_logger;
     }
-
     /**
      * @param $message
      * @param null $store
@@ -486,7 +463,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $this->_mlogger->mailchimpLog($message, $file);
         }
     }
-
     /**
      * @return string
      * @throws \Magento\Framework\Exception\LocalizedException
@@ -541,7 +517,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $mailchimpStoreId = md5(parse_url($baseUrl, PHP_URL_HOST) . '_' . $date);
             $currencyCode = $this->_storeManager->getStore($storeId)->getDefaultCurrencyCode();
             $name = $this->getMCStoreName($storeId);
-
             //create store in mailchimp
             try {
                 $this->getApi()->ecommerce->stores->add($mailchimpStoreId, $listId, $name, $currencyCode, self::PLATFORM);
@@ -562,7 +537,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return BP;
     }
-
     /**
      * @param \Magento\Customer\Model\Customer $customer
      * @param $storeId
@@ -599,7 +573,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         return (!empty($mergeVars)) ? $mergeVars : null;
     }
-
     /**
      * @param \Magento\Customer\Model\Address\AbstractAddress $value
      * @return array
@@ -633,7 +606,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         return $addressData;
     }
-
     public function getMergeVarsBySubscriber(\Magento\Newsletter\Model\Subscriber $subscriber, $email = null)
     {
         $mergeVars = [];
@@ -657,7 +629,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         return $mergeVars;
     }
-
     /**
      * @param \Magento\Customer\Model\Customer $customer
      * @param $email
@@ -667,13 +638,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return $this->getMergeVars($customer, $customer->getStoreId());
     }
-
-
     public function getGeneralList($storeId)
     {
         return $this->getConfigValue(self::XML_PATH_LIST, $storeId);
     }
-
     public function getListForMailChimpStore($mailchimpStoreId, $apiKey)
     {
         try {
@@ -687,7 +655,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         return null;
     }
-
     public function getDateMicrotime()
     {
         $microtime = explode(' ', microtime());
@@ -719,7 +686,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
     public function saveEcommerceData($storeId, $entityId, $type, $date = null, $error = null, $modified = null, $deleted = null, $token = null)
     {
-
         $chimpSyncEcommerce = $this->getChimpSyncEcommerce($storeId, $entityId, $type);
         if ($chimpSyncEcommerce->getRelatedId()==$entityId || !$chimpSyncEcommerce->getRelatedId() && $modified!=1) {
             $chimpSyncEcommerce->setMailchimpStoreId($storeId);
@@ -746,7 +712,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $chimpSyncEcommerce->getResource()->save($chimpSyncEcommerce);
         }
     }
-
     public function markEcommerceAsModified($relatedId, $type)
     {
         $this->_mailChimpSyncE->markAllAsModified($relatedId, $type);
@@ -759,7 +724,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $this->_mailChimpSyncE->deleteAllByIdType($id, $type, $mailchimpStoreId);
     }
-
     public function getChimpSyncEcommerce($storeId, $id, $type)
     {
         $chimp = $this->_mailChimpSyncEcommerce->create();
@@ -782,7 +746,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             }
             $this->_api->setApiKey(trim($apiKey));
             $this->_api->setUserAgent('Mailchimp4Magento' . (string)$this->getModuleVersion());
-
             try {
                 $apiStores = $this->_api->ecommerce->stores->get(null, null, null, self::MAXSTORES);
             } catch (\Mailchimp_Error $mailchimpError) {
@@ -792,7 +755,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 $this->log($mailchimpError->getMessage());
                 continue;
             }
-
             foreach ($apiStores['stores'] as $store) {
                 if ($store['platform']!=self::PLATFORM) {
                     continue;
@@ -864,16 +826,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         return $url;
     }
-
     public function getWebhooksKey()
     {
         $keys =explode("\n", $this->_encryptor->exportKeys());
         $crypt = md5((string)$keys[0]);
         $key = substr($crypt, 0, (strlen($crypt) / 2));
-
         return $key;
     }
-
     public function createWebHook($apikey, $listId)
     {
         $events = [
@@ -925,7 +884,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $this->log($e->getFriendlyMessage());
         }
     }
-
     /**
      * @param $listId
      * @param $mail
@@ -957,7 +915,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         return $storeIds;
     }
-
     /**
      * @param $listId
      * @param $email
@@ -976,7 +933,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         return $customer;
     }
-
     /**
      * @param $tableName
      * @return string
@@ -1026,13 +982,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         /**
          * @var $interestGroup \Ebizmarts\MailChimp\Model\MailChimpInterestGroup
          */
-
         $interestGroup = $this->_interestGroupFactory->create();
         $interestGroup->getBySubscriberIdStoreId($subscriberId, $storeId);
         $serialized = $interestGroup->getGroupdata();
         if($serialized) {
             try {
-                $groups = $this->_serializer->unserialize($serialized);
+                $groups = $this->unserialize($serialized);
                 if (isset($groups['group'])) {
                     foreach ($groups['group'] as $key => $value) {
                         if (isset($interest[$key])) {
@@ -1101,5 +1056,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getCounters()
     {
         return $this->counters;
+    }
+    public function serialize($data)
+    {
+        return $this->_serializer->serialize($data);
+    }
+    public function unserialize($string)
+    {
+        return $this->_serializer->unserialize($string);
     }
 }
